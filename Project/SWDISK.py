@@ -47,7 +47,7 @@ class UberFinder:
         #travel modes of deliverers
         self.travel_mode = ('walking','bicycling','driving')
 
-        #travel time matrixes
+        #travel time matrixes (in seconds)
         #D - DELIVERER , R - RESTAURANT, C - CLIENT
         #2D numpy arrays of seconds of travel between DR(deliverer <--> restaurant)
         self.travel_time_DR = np.arange(self.deliverers_quantity*self.restaurants_quantity).reshape(
@@ -57,13 +57,24 @@ class UberFinder:
         self.travel_time_DC = np.arange(self.deliverers_quantity*self.restaurants_quantity).reshape(
             self.deliverers_quantity,self.restaurants_quantity)
 
+        # distance matrixes(in meters)
+        # D - DELIVERER , R - RESTAURANT, C - CLIENT
+        # 2D numpy arrays of seconds of travel between DR(deliverer <--> restaurant)
+        self.distance_DR = np.arange(self.deliverers_quantity * self.restaurants_quantity).reshape(
+            self.deliverers_quantity, self.restaurants_quantity)
+        self.distance_RC = np.arange(self.restaurants_quantity * self.restaurants_quantity).reshape(
+            self.restaurants_quantity, self.restaurants_quantity)
+        self.distance_DC = np.arange(self.deliverers_quantity * self.restaurants_quantity).reshape(
+            self.deliverers_quantity, self.restaurants_quantity)
+
         self.generate_restaurants()
         self.generate_deliverers()
         self.generate_clients()
         self.assign_clients_restaurants()
-        self.count_travel_time_DR()
-        self.count_travel_time_RC()
-        self.count_travel_time_DC()
+        self.count_time_distance_DC()
+        # self.count_travel_time_RC()
+        self.count_time_distance_DR()
+        self.count_distance_RC()
 
     def generate_restaurants(self):
         #adds restaurants to restaurants dictionary according to search parameters
@@ -72,7 +83,7 @@ class UberFinder:
         for i in range(self.restaurants_quantity):
             self.restaurants[i] = {'name': restaurants_data['results'][i]['name'],
                                    'loc': ((restaurants_data['results'][i]['geometry']['location']['lat'],
-                                            restaurants_data['results'][i]['geometry']['locat  ion']['lng'])),
+                                            restaurants_data['results'][i]['geometry']['location']['lng'])),
                                    'client': None
                                    }
 
@@ -94,27 +105,36 @@ class UberFinder:
          for key,client_id in zip(self.restaurants.keys(),self.clients):
              self.restaurants[key]['client'] = client_id
 
-    def count_travel_time_DR(self):
-        #fills travel time matrix between deliverers and restaurants
+    def count_time_distance_DR(self):
+        #fills travel distance and time matrixes between deliverers and restaurants
         for deliverer in self.deliverers:
             for restaurant in self.restaurants:
-                distance = self.gmaps.distance_matrix(self.deliverers[deliverer]['loc'], self.restaurants[restaurant]['loc'],'walking')
+                distance = self.gmaps.distance_matrix(self.deliverers[deliverer]['loc'], self.restaurants[restaurant]['loc'],self.deliverers[deliverer]['travel_mode'])
                 self.travel_time_DR[deliverer][restaurant] = distance['rows'][0]['elements'][0]['duration']['value']
+                self.distance_DR[deliverer][restaurant] = distance['rows'][0]['elements'][0]['distance']['value']
 
+    # def count_travel_time_RC(self):
+    #     # fills travel time matrix between restaurants and clients
+    #     for restaurant in self.restaurants:
+    #         for client in self.clients:
+    #             distance = self.gmaps.distance_matrix(self.restaurants[restaurant]['loc'], self.clients[client]['loc'],self.deliverers[deliverer]['travel_mode'])
+    #             self.travel_time_RC[restaurant][client] = distance['rows'][0]['elements'][0]['duration']['value']
 
-    def count_travel_time_RC(self):
+    def count_time_distance_DC(self):
+        #fills travel distance and time matrixes  between deliverers and clients
+        for deliverer in self.deliverers:
+            for client in self.clients:
+                distance = self.gmaps.distance_matrix(self.deliverers[deliverer]['loc'], self.clients[client]['loc'],self.deliverers[deliverer]['travel_mode'])
+                self.travel_time_DC[deliverer][client] = distance['rows'][0]['elements'][0]['duration']['value']
+                self.distance_DC[deliverer][client] = distance['rows'][0]['elements'][0]['distance']['value']
+
+    def count_distance_RC(self):
         # fills travel time matrix between restaurants and clients
         for restaurant in self.restaurants:
             for client in self.clients:
-                distance = self.gmaps.distance_matrix(self.restaurants[restaurant]['loc'], self.clients[client]['loc'],'walking')
-                self.travel_time_RC[restaurant][client] = distance['rows'][0]['elements'][0]['duration']['value']
+                distance = self.gmaps.distance_matrix(self.restaurants[restaurant]['loc'], self.clients[client]['loc'],'driving')
+                self.distance_RC[restaurant][client] = distance['rows'][0]['elements'][0]['distance']['value']
 
-    def count_travel_time_DC(self):
-        # fills travel time matrix between deliverers and clients
-        for deliverer in self.deliverers:
-            for client in self.clients:
-                distance = self.gmaps.distance_matrix(self.deliverers[deliverer]['loc'], self.clients[client]['loc'],'walking')
-                self.travel_time_DC[deliverer][client] = distance['rows'][0]['elements'][0]['duration']['value']
 
 
 def main():
@@ -128,10 +148,18 @@ def main():
     print('TRAVEL TIME MATRIXES')
     print('TRAVEL TIMES DELIVERER - RESTAURANT')
     print(finder.travel_time_DR)
-    print('TRAVEL TIMES RESTAURANT - CLIENT')
-    print(finder.travel_time_RC)
+    # print('TRAVEL TIMES RESTAURANT - CLIENT')
+    # print(finder.travel_time_RC)
     print('TRAVEL TIMES DELIVERER - CLIENT')
     print(finder.travel_time_DC)
+    print('---------------------')
+    print('DISTANCE MATRIXES')
+    print('DISTANCE MATRIX DELIVERER - RESTAURANT')
+    print(finder.distance_DR)
+    print('DISTANCE DELIVERER - CLIENT')
+    print(finder.distance_DC)
+    print('DISTANCE RESTAURANT - CLIENT')
+    print(finder.distance_RC)
 
 if __name__ == '__main__':
     main()

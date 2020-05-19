@@ -18,7 +18,9 @@ directions_result = gmaps.directions("Sydney Town Hall",
                                      "Parramatta, NSW",
                                      mode="walking",
                                      departure_time=now)
-distance = gmaps.distance_matrix('Wrocław Vertigo Jazz Club & Restaurant',(51.1117,17.0602),'walking')
+#godz 16 - 1601564400
+#godzina 1:00 - 1601510400
+distance = gmaps.distance_matrix('Wrocław Vertigo Jazz Club & Restaurant',(51.1117,17.0602),'driving',departure_time=1601510400,traffic_model = 'pessimistic')
 
 
 
@@ -29,6 +31,7 @@ pp = pprint.PrettyPrinter(indent=1)
 pp.pprint(distance)
 print(distance['rows'][0]['elements'][0]['distance']['value'],distance['rows'][0]['elements'][0]['distance']['text'])
 print(distance['rows'][0]['elements'][0]['duration']['value'],distance['rows'][0]['elements'][0]['duration']['text'])
+print(distance['rows'][0]['elements'][0]['duration_in_traffic']['value'],distance['rows'][0]['elements'][0]['duration_in_traffic']['text'])
 # print(distance)
 #
 #
