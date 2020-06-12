@@ -4,6 +4,10 @@ import time
 import random
 import pprint
 import numpy as np
+import itertools as iter
+import more_itertools as mi
+import copy
+
 
 pp = pprint.PrettyPrinter(indent=1)
 api_key = 'AIzaSyCwpVdTaCjH7QzsduH3Jb0XP548eUzSSDw'
@@ -42,10 +46,10 @@ class UberFinder:
         self.search_params = {
                                 'query': ['restaurants'],
                                 'location': (51.1117,17.0602),
-                                'radius': 500
+                                'radius': 2000
                              }
         #travel modes of deliverers
-        self.travel_mode = ('walking','bicycling','driving')
+        self.travel_mode = ('walking')
 
         #travel time matrixes (in seconds)
         #D - DELIVERER , R - RESTAURANT, C - CLIENT
@@ -57,6 +61,11 @@ class UberFinder:
         self.travel_time_DC = np.arange(self.deliverers_quantity*self.restaurants_quantity).reshape(
             self.deliverers_quantity,self.restaurants_quantity)
 
+        self.travel_time_RR = np.arange(self.restaurants_quantity * self.restaurants_quantity).reshape(
+            self.restaurants_quantity, self.restaurants_quantity)
+        self.travel_time_CC = np.arange(self.restaurants_quantity * self.restaurants_quantity).reshape(
+            self.restaurants_quantity, self.restaurants_quantity)
+
         # distance matrixes(in meters)
         # D - DELIVERER , R - RESTAURANT, C - CLIENT
         # 2D numpy arrays of seconds of travel between DR(deliverer <--> restaurant)
@@ -67,15 +76,20 @@ class UberFinder:
         self.distance_DC = np.arange(self.deliverers_quantity * self.restaurants_quantity).reshape(
             self.deliverers_quantity, self.restaurants_quantity)
 
+        self.distance_RR = np.arange(self.restaurants_quantity * self.restaurants_quantity).reshape(
+            self.restaurants_quantity, self.restaurants_quantity)
+        self.distance_CC = np.arange(self.restaurants_quantity * self.restaurants_quantity).reshape(
+            self.restaurants_quantity, self.restaurants_quantity)
+
         self.generate_restaurants()
         self.generate_deliverers()
         self.generate_clients()
         self.assign_clients_restaurants()
         self.count_time_distance_DC()
-        # self.count_travel_time_RC()
         self.count_time_distance_DR()
-        self.count_distance_RC()
-
+        self.count_time_distance_RC()
+        self.count_time_distance_RR()
+        self.count_time_distance_CC()
     def generate_restaurants(self):
         #adds restaurants to restaurants dictionary according to search parameters
         #now searching restaurants in 500 meters radius from pasaż grunwaldzki
@@ -92,7 +106,7 @@ class UberFinder:
         # now locations of deliverers are randomly generated 'around' pasaż grunwaldzki in (more or less) 1,5km radius
         for i in range(self.deliverers_quantity):
             self.deliverers[i] = {'loc' : (random.uniform(51.1070, 51.1175),random.uniform(17.055, 17.065)),
-                                  'travel_mode':random.choice(self.travel_mode),
+                                  'travel_mode':'driving',
                                   'orders': []}
 
     def generate_clients(self):
@@ -128,17 +142,153 @@ class UberFinder:
                 self.travel_time_DC[deliverer][client] = distance['rows'][0]['elements'][0]['duration']['value']
                 self.distance_DC[deliverer][client] = distance['rows'][0]['elements'][0]['distance']['value']
 
-    def count_distance_RC(self):
+    def count_time_distance_RC(self):
         # fills travel time matrix between restaurants and clients
         for restaurant in self.restaurants:
             for client in self.clients:
                 distance = self.gmaps.distance_matrix(self.restaurants[restaurant]['loc'], self.clients[client]['loc'],'driving')
                 self.distance_RC[restaurant][client] = distance['rows'][0]['elements'][0]['distance']['value']
+                self.travel_time_RC[restaurant][client] = distance['rows'][0]['elements'][0]['duration']['value']
+
+    def count_time_distance_RR(self):
+        # fills travel time matrix between restaurants
+        for restaurant in self.restaurants:
+            for client in self.clients:
+                distance = self.gmaps.distance_matrix(self.restaurants[restaurant]['loc'], self.restaurants[client]['loc'],'driving')
+                self.distance_RR[restaurant][client] = distance['rows'][0]['elements'][0]['distance']['value']
+                self.travel_time_RR[restaurant][client] = distance['rows'][0]['elements'][0]['duration']['value']
+
+    def count_time_distance_CC(self):
+        # fills travel time matrix between restaurants
+        for restaurant in self.restaurants:
+            for client in self.clients:
+                distance = self.gmaps.distance_matrix(self.clients[restaurant]['loc'], self.clients[client]['loc'],'driving')
+                self.distance_CC[restaurant][client] = distance['rows'][0]['elements'][0]['distance']['value']
+                self.travel_time_CC[restaurant][client] = distance['rows'][0]['elements'][0]['duration']['value']
+
+
+    def cost_function(self,distance ,delivery_price ,duration, travel_mode,deliverer_pay = 15,transport_cost = None):
+        if travel_mode == 'driving':
+            transport_cost = 0.83
+        elif travel_mode == 'bicycling':
+            transport_cost = 0.05
+        else:
+            transport_cost = 0
+        if duration > 2100:
+            return - duration/3600*deliverer_pay - distance/1000*transport_cost
+        else:
+            return distance/1000 * delivery_price - duration/3600 * deliverer_pay - distance/1000 * transport_cost # 3,6 * 5 - 0,069 * 12 - 3,6 * 0.83
+
+    def brute_force(self):
+        combinations = []
+        deliv = [i for i in range(self.deliverers_quantity)]
+        rest = [i for i in range(self.restaurants_quantity)]
+        r_combinations = mi.powerset(rest)
+        comb_iter = iter.combinations(r_combinations, self.deliverers_quantity)
+        before_perm = []
+        for i in comb_iter:
+            temp = []
+            for j in i:
+                for z in j:
+                    temp.append(z)
+            if sorted(temp) == rest:
+                before_perm.append(i)
+        for i in before_perm:
+            k = iter.permutations(i)
+            for j in k:
+                combinations.append(j)
+        total_cost = 0
+        final_combination=[]
+        for comb in combinations:
+            i_combination = []
+            cost = 0
+            for orders,deliverer in zip(comb,range(self.deliverers_quantity)):
+                if len(orders) == 0:
+                    i_combination.append(orders)
+                    continue
+                elif len(orders) == 1:
+                    cost += self.cost_function(self.distance_DR[deliverer][orders[0]],5,
+                                               self.travel_time_DR[deliverer][orders[0]],'driving')
+                    cost += self.cost_function(self.distance_RC[orders[0]][orders[0]], 5,
+                                               self.travel_time_RC[orders[0]][orders[0]], 'driving')
+                    i_combination.append(orders)
+                else:
+                    rc_dict ={}
+                    rc_list = []
+                    r_dict = {}
+                    for i in orders:
+                        r_dict[f'r{i}'] = i
+                        rc_list.append(f'r{i}')
+                    c_dict = {}
+                    for i in orders:
+                        c_dict[f'c{i}'] = i
+                        rc_list.append(f'c{i}')
+                    rc_dict = {**c_dict,**r_dict}
+
+                    # max_cost = 0
+                    # perm_max = None
+                    best_perm_value = 0
+                    best_perm = None
+                    for perm in iter.permutations(rc_list):
+                        perm_cost = 0  #koszt dla danej permutacji
+                        possible_combination_flag = True
+                        for c,r in zip(c_dict.keys(),r_dict.keys()):
+                            if perm.index(c) < perm.index(r):
+                                possible_combination_flag = False
+
+                        if possible_combination_flag == False:
+                            break
+                        else:
+                            perm_cost += self.cost_function(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
+                                           self.travel_time_DR[deliverer][orders[0]],'driving')
+                            for place_index in range(len(perm)-1):
+                                if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
+                                    perm_cost += self.cost_function(self.distance_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                                                    5,
+                                                                    self.travel_time_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                                                    'driving')
+                                elif perm[place_index][0] == 'c' and perm[place_index+1][0] == 'r':
+                                    perm_cost += self.cost_function(self.distance_RC[r_dict[perm[place_index + 1]]][
+                                                                        c_dict[perm[place_index]]],
+                                                                    5,
+                                                                    self.travel_time_RC[
+                                                                        r_dict[perm[place_index + 1]]][
+                                                                        c_dict[perm[place_index]]],
+                                                                    'driving')
+                                elif perm[place_index][0] == 'r' and perm[place_index+1][0] == 'r':
+                                    perm_cost += self.cost_function(self.distance_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
+                                                                    5,
+                                                                    self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
+                                                                    'driving')
+                                else:
+                                    perm_cost += self.cost_function(
+                                        self.distance_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                        5,
+                                        self.travel_time_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                        'driving')
+                        if perm_cost > best_perm_value:
+                            best_perm_value = perm_cost
+                            best_perm = perm
+                    cost+= best_perm_value
+                    i_combination.append(best_perm)
+            if cost > total_cost:
+                total_cost = cost
+                final_combination = i_combination
+        return [final_combination,total_cost]
+
+    #
+    #
+    # def test(self):
+    #     x = iter.permutations([self.restaurants[0],self.restaurants[1],self.clients[0],self.clients[1]])
+    #     for i in x:
+    #         print(i)
+
+
 
 
 
 def main():
-    finder = UberFinder(api_key,5,4)
+    finder = UberFinder(api_key,4,3)
     print('RESTAURANTS')
     pp.pprint(finder.restaurants)
     print("DELIVERERRS")
@@ -148,10 +298,14 @@ def main():
     print('TRAVEL TIME MATRIXES')
     print('TRAVEL TIMES DELIVERER - RESTAURANT')
     print(finder.travel_time_DR)
-    # print('TRAVEL TIMES RESTAURANT - CLIENT')
-    # print(finder.travel_time_RC)
+    print('TRAVEL TIMES RESTAURANT - CLIENT')
+    print(finder.travel_time_RC)
     print('TRAVEL TIMES DELIVERER - CLIENT')
     print(finder.travel_time_DC)
+    print('TRAVEL TIMES RESTAURANT - RESTAURANT')
+    print(finder.travel_time_RR)
+    print('TRAVEL TIMES CLIENT - CLIENT')
+    print(finder.travel_time_CC)
     print('---------------------')
     print('DISTANCE MATRIXES')
     print('DISTANCE MATRIX DELIVERER - RESTAURANT')
@@ -160,6 +314,11 @@ def main():
     print(finder.distance_DC)
     print('DISTANCE RESTAURANT - CLIENT')
     print(finder.distance_RC)
+    print('DISTANCE RESTAURANT - RESTAURANT')
+    print(finder.distance_RR)
+    print('DISTANCE CLIENT - CLIENT')
+    print(finder.distance_CC)
+    print(finder.brute_force())
 
 if __name__ == '__main__':
     main()
