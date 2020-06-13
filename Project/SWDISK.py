@@ -7,6 +7,7 @@ import numpy as np
 import itertools as iter
 import more_itertools as mi
 import copy
+import gmplot
 
 
 pp = pprint.PrettyPrinter(indent=1)
@@ -45,13 +46,14 @@ class UberFinder:
         #parameters for gmaps api search
         self.search_params = {
                                 'query': ['restaurants'],
-                                'location': (51.1117,17.0602),
+                                'location': (51.1132,17.0584),
+                                # 'location': (51.1117,17.0602),
                                 # 'location': (51.095, 17.0146),
-                                'radius': 2000
+                                'radius': 1300
                              }
+        self.gplot = gmplot.GoogleMapPlotter(self.search_params['location'][0],self.search_params['location'][1],15,apikey=api_key)
         #travel modes of deliverers
         self.travel_mode = ('walking')
-
         #travel time matrixes (in seconds)
         #D - DELIVERER , R - RESTAURANT, C - CLIENT
         #2D numpy arrays of seconds of travel between DR(deliverer <--> restaurant)
@@ -91,6 +93,9 @@ class UberFinder:
         self.count_time_distance_RC()
         self.count_time_distance_RR()
         self.count_time_distance_CC()
+
+
+
     def generate_restaurants(self):
         #adds restaurants to restaurants dictionary according to search parameters
         #now searching restaurants in 500 meters radius from pasaż grunwaldzki
@@ -188,6 +193,25 @@ class UberFinder:
 
         return - duration / 3600 * deliverer_pay - distance / 1000 * transport_cost  # 3,6 * 5 - 0,069 * 12 - 3,6 * 0.83
 
+    def draw_map(self):
+        for deliverer in self.deliverers:
+            self.gplot.marker(self.deliverers[deliverer]['loc'][0],
+                              self.deliverers[deliverer]['loc'][1],
+                              color='green',
+                              title= 'Deliverer {}'.format(deliverer))
+        for restaurant,client in zip(self.restaurants,self.clients):
+            self.gplot.marker(self.restaurants[restaurant]['loc'][0],
+                              self.restaurants[restaurant]['loc'][1],
+                              color='red',
+                              title= '{} - {}'.format(str(self.restaurants[restaurant]['name'].encode(encoding='ascii',errors = 'ignore'),"utf-8"),restaurant))
+            self.gplot.marker(self.clients[client]['loc'][0],
+                              self.clients[client]['loc'][1],
+                              color = 'blue',
+                              title = 'Client {}'.format(client))
+        self.gplot.draw('map.html')
+
+
+
     def brute_force(self):
         combinations = []
         deliv = [i for i in range(self.deliverers_quantity)]
@@ -259,7 +283,9 @@ class UberFinder:
                             perm_time += self.travel_time_DR[deliverer][orders[0]]
                             for place_index in range(len(perm)-1):
                                 if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
-
+                                    for station in perm:
+                                        perm_time += self.travel_time_RC[r_dict[perm[place_index]]][
+                                            c_dict[perm[place_index + 1]]]
                                     perm_time += self.travel_time_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]]
                                     if perm_time > 2400:
                                         perm_cost += self.cost_function_DR(
@@ -325,7 +351,8 @@ class UberFinder:
             'Delivery times' : delivery_times
         }
         return results_dict
-
+    def heuristic(self):
+        pass
     #
     #
     # def test(self):
@@ -338,7 +365,7 @@ class UberFinder:
 
 
 def main():
-    finder = UberFinder(api_key,5,4)
+    finder = UberFinder(api_key,4,3)
     print('RESTAURANTS')
     pp.pprint(finder.restaurants)
     print("DELIVERERRS")
@@ -368,6 +395,7 @@ def main():
     print(finder.distance_RR)
     print('DISTANCE CLIENT - CLIENT')
     print(finder.distance_CC)
+    finder.draw_map()
     pp.pprint(finder.brute_force())
 
 if __name__ == '__main__':
