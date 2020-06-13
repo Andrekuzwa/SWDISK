@@ -211,6 +211,23 @@ class UberFinder:
         self.gplot.draw('map.html')
 
 
+    def helper(self, stations, final_station):
+        time = 0
+        rc_dict = {}
+        for orders in stations:
+            rc_dict[orders] = int(orders[1:])
+        for i in range(len(stations)-1):
+            if stations[i] == final_station:
+                break
+            if stations[i][0] == 'r' and stations[i+1][0] == 'r':
+                time += self.travel_time_RR[rc_dict[stations[i]]][rc_dict[stations[i+1]]]
+            elif stations[i][0] == 'r' and stations[i+1][0] == 'c':
+                time += self.travel_time_RC[rc_dict[stations[i]]][rc_dict[stations[i + 1]]]
+            elif stations[i][0] == 'c' and stations[i+1][0] == 'r':
+                time += self.travel_time_RC[rc_dict[stations[i+1]]][rc_dict[stations[i]]]
+            else:
+                time += self.travel_time_CC[rc_dict[stations[i]]][rc_dict[stations[i+1]]]
+        return time
 
     def brute_force(self):
         combinations = []
@@ -235,7 +252,7 @@ class UberFinder:
         best_delivery_times = []
         for comb in combinations:
             i_combination = []
-            delivery_times = []
+            delivery_times = {}
             cost = 0
             for orders,deliverer in zip(comb,range(self.deliverers_quantity)):
                 if len(orders) == 0:
@@ -283,7 +300,7 @@ class UberFinder:
                             perm_time += self.travel_time_DR[deliverer][orders[0]]
                             for place_index in range(len(perm)-1):
                                 if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
-                                    perm_time += self.travel_time_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]]
+                                    perm_time += self.helper(perm,perm[place_index+1])
                                     if perm_time > 2400:
                                         perm_cost += self.cost_function_DR(
                                             self.distance_RC[c_dict[perm[place_index+1]]][c_dict[perm[place_index + 1]]],
@@ -316,7 +333,7 @@ class UberFinder:
                                                                     'driving')
                                     perm_time += self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]]
                                 else:
-                                    perm_time += self.travel_time_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]]
+                                    perm_time += self.helper(perm,perm[place_index+1])
                                     if perm_time > 2400:
                                         perm_cost += self.cost_function_DR(
                                             self.distance_RC[c_dict[perm[place_index + 1]]][c_dict[perm[place_index + 1]]],
