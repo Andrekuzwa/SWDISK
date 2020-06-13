@@ -283,9 +283,6 @@ class UberFinder:
                             perm_time += self.travel_time_DR[deliverer][orders[0]]
                             for place_index in range(len(perm)-1):
                                 if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
-                                    for station in perm:
-                                        perm_time += self.travel_time_RC[r_dict[perm[place_index]]][
-                                            c_dict[perm[place_index + 1]]]
                                     perm_time += self.travel_time_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]]
                                     if perm_time > 2400:
                                         perm_cost += self.cost_function_DR(
