@@ -46,10 +46,10 @@ class UberFinder:
         #parameters for gmaps api search
         self.search_params = {
                                 'query': ['restaurants'],
-                                # 'location': (51.1132,17.0584),
+                                'location': (51.1132,17.0584),
                                 # 'location': (51.1117,17.0602),
-                                'location': (51.095, 17.0146),
-                                'radius': 3000
+                                # 'location': (51.095, 17.0146),
+                                'radius': 1000
                              }
         self.gplot = gmplot.GoogleMapPlotter(self.search_params['location'][0],self.search_params['location'][1],15,apikey=api_key)
         #travel modes of deliverers
@@ -199,15 +199,21 @@ class UberFinder:
                               self.deliverers[deliverer]['loc'][1],
                               color='green',
                               title= 'Deliverer {}'.format(deliverer))
+            self.gplot.text(self.deliverers[deliverer]['loc'][0],
+                              self.deliverers[deliverer]['loc'][1], 'Deliverer {}'.format(deliverer))
         for restaurant,client in zip(self.restaurants,self.clients):
             self.gplot.marker(self.restaurants[restaurant]['loc'][0],
                               self.restaurants[restaurant]['loc'][1],
                               color='red',
                               title= '{} - {}'.format(str(self.restaurants[restaurant]['name'].encode(encoding='ascii',errors = 'ignore'),"utf-8"),restaurant))
+            self.gplot.text(self.restaurants[restaurant]['loc'][0],
+                            self.restaurants[restaurant]['loc'][1], 'Restaurant {}'.format(restaurant))
             self.gplot.marker(self.clients[client]['loc'][0],
                               self.clients[client]['loc'][1],
                               color = 'blue',
                               title = 'Client {}'.format(client))
+            self.gplot.text(self.clients[client]['loc'][0],
+                            self.clients[client]['loc'][1], 'Client {}'.format(client))
         for orders,index in zip(result,range(len(result))):
             if len(orders) == 0:
                 continue
@@ -264,8 +270,8 @@ class UberFinder:
                     i_combination.append(orders)
                     continue
                 elif len(orders) == 1:
-                    cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]],5,
-                                               self.travel_time_DR[deliverer][orders[0]],'driving')
+                    # cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]],5,
+                    #                            self.travel_time_DR[deliverer][orders[0]],'driving')
                     cost += self.cost_function(self.distance_RC[orders[0]][orders[0]], 5,
                                                self.travel_time_RC[orders[0]][orders[0]], 'driving')
                     i_combination.append(orders)
@@ -294,8 +300,8 @@ class UberFinder:
                         if possible_combination_flag == False:
                             break
                         else:
-                            perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
-                                           self.travel_time_DR[deliverer][orders[0]],'driving')
+                            # perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
+                            #                self.travel_time_DR[deliverer][orders[0]],'driving')
                             for place_index in range(len(perm)-1):
                                 if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
                                     perm_cost += self.cost_function(
