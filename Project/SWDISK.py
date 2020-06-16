@@ -46,10 +46,10 @@ class UberFinder:
         #parameters for gmaps api search
         self.search_params = {
                                 'query': ['restaurants'],
-                                'location': (51.1132,17.0584),
+                                # 'location': (51.1132,17.0584),
                                 # 'location': (51.1117,17.0602),
-                                # 'location': (51.095, 17.0146),
-                                'radius': 1300
+                                'location': (51.095, 17.0146),
+                                'radius': 3000
                              }
         self.gplot = gmplot.GoogleMapPlotter(self.search_params['location'][0],self.search_params['location'][1],15,apikey=api_key)
         #travel modes of deliverers
@@ -193,7 +193,7 @@ class UberFinder:
 
         return - duration / 3600 * deliverer_pay - distance / 1000 * transport_cost  # 3,6 * 5 - 0,069 * 12 - 3,6 * 0.83
 
-    def draw_map(self):
+    def draw_map(self,result):
         for deliverer in self.deliverers:
             self.gplot.marker(self.deliverers[deliverer]['loc'][0],
                               self.deliverers[deliverer]['loc'][1],
@@ -208,26 +208,33 @@ class UberFinder:
                               self.clients[client]['loc'][1],
                               color = 'blue',
                               title = 'Client {}'.format(client))
-        self.gplot.draw('map.html')
-
-
-    def helper(self, stations, final_station):
-        time = 0
-        rc_dict = {}
-        for orders in stations:
-            rc_dict[orders] = int(orders[1:])
-        for i in range(len(stations)-1):
-            if stations[i] == final_station:
-                break
-            if stations[i][0] == 'r' and stations[i+1][0] == 'r':
-                time += self.travel_time_RR[rc_dict[stations[i]]][rc_dict[stations[i+1]]]
-            elif stations[i][0] == 'r' and stations[i+1][0] == 'c':
-                time += self.travel_time_RC[rc_dict[stations[i]]][rc_dict[stations[i + 1]]]
-            elif stations[i][0] == 'c' and stations[i+1][0] == 'r':
-                time += self.travel_time_RC[rc_dict[stations[i+1]]][rc_dict[stations[i]]]
+        for orders,index in zip(result,range(len(result))):
+            if len(orders) == 0:
+                continue
+            elif len(orders) == 1:
+                self.gplot.directions(
+                    self.deliverers[index]['loc'],
+                    self.clients[orders[0]]['loc'],
+                    waypoints=[
+                        self.restaurants[orders[0]]['loc']
+                    ]
+                )
             else:
-                time += self.travel_time_CC[rc_dict[stations[i]]][rc_dict[stations[i+1]]]
-        return time
+                loc_points = []
+                for station in orders:
+                    if station[0] == 'r':
+                        loc_points.append(self.restaurants[int(station[1:])]['loc'])
+                    else:
+                        loc_points.append(self.clients[int(station[1:])]['loc'])
+                self.gplot.directions\
+                    (
+                        self.deliverers[index]['loc'],
+                        loc_points[-1],
+                        waypoints=loc_points[:-1]
+                     )
+                pass
+
+        self.gplot.draw('map.html')
 
     def brute_force(self):
         combinations = []
@@ -249,15 +256,12 @@ class UberFinder:
                 combinations.append(j)
         total_cost = 0
         final_combination=[]
-        best_delivery_times = []
         for comb in combinations:
             i_combination = []
-            delivery_times = []
             cost = 0
             for orders,deliverer in zip(comb,range(self.deliverers_quantity)):
                 if len(orders) == 0:
                     i_combination.append(orders)
-                    delivery_times.append(0)
                     continue
                 elif len(orders) == 1:
                     cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]],5,
@@ -265,7 +269,6 @@ class UberFinder:
                     cost += self.cost_function(self.distance_RC[orders[0]][orders[0]], 5,
                                                self.travel_time_RC[orders[0]][orders[0]], 'driving')
                     i_combination.append(orders)
-                    delivery_times.append(self.travel_time_DR[deliverer][orders[0]] + self.travel_time_RC[orders[0]][orders[0]])
                 else:
                     rc_dict ={}
                     rc_list = []
@@ -279,14 +282,10 @@ class UberFinder:
                         rc_list.append(f'c{i}')
                     rc_dict = {**c_dict,**r_dict}
 
-                    # max_cost = 0
-                    # perm_max = None
                     best_perm_value = 0
                     best_perm = None
-                    best_time = 0
                     for perm in iter.permutations(rc_list):
                         perm_cost = 0  #koszt dla danej permutacji
-                        perm_time = 0
                         possible_combination_flag = True
                         for c,r in zip(c_dict.keys(),r_dict.keys()):
                             if perm.index(c) < perm.index(r):
@@ -297,24 +296,14 @@ class UberFinder:
                         else:
                             perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
                                            self.travel_time_DR[deliverer][orders[0]],'driving')
-                            perm_time += self.travel_time_DR[deliverer][orders[0]]
                             for place_index in range(len(perm)-1):
                                 if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
-                                    perm_time += self.helper(perm,perm[place_index+1])
-                                    if perm_time > 2400:
-                                        perm_cost += self.cost_function_DR(
-                                            self.distance_RC[c_dict[perm[place_index+1]]][c_dict[perm[place_index + 1]]],
-                                            5,
-                                            self.travel_time_RC[r_dict[perm[place_index]]][
-                                                c_dict[perm[place_index + 1]]],
-                                            'driving')
-                                    else:
-                                        perm_cost += self.cost_function(
-                                            self.distance_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
-                                            5,
-                                            self.travel_time_RC[r_dict[perm[place_index]]][
-                                                c_dict[perm[place_index + 1]]],
-                                            'driving')
+                                    perm_cost += self.cost_function(
+                                        self.distance_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                        5,
+                                        self.travel_time_RC[r_dict[perm[place_index]]][
+                                            c_dict[perm[place_index + 1]]],
+                                        'driving')
                                 elif perm[place_index][0] == 'c' and perm[place_index+1][0] == 'r':
                                     perm_cost += self.cost_function(self.distance_RC[r_dict[perm[place_index + 1]]][
                                                                         c_dict[perm[place_index]]],
@@ -323,46 +312,29 @@ class UberFinder:
                                                                         r_dict[perm[place_index + 1]]][
                                                                         c_dict[perm[place_index]]],
                                                                     'driving')
-                                    perm_time  += self.travel_time_RC[
-                                                                        r_dict[perm[place_index + 1]]][
-                                                                        c_dict[perm[place_index]]]
                                 elif perm[place_index][0] == 'r' and perm[place_index+1][0] == 'r':
                                     perm_cost += self.cost_function(self.distance_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
                                                                     5,
                                                                     self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
                                                                     'driving')
-                                    perm_time += self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]]
                                 else:
-                                    perm_time += self.helper(perm,perm[place_index+1])
-                                    if perm_time > 2400:
-                                        perm_cost += self.cost_function_DR(
-                                            self.distance_RC[c_dict[perm[place_index + 1]]][c_dict[perm[place_index + 1]]],
-                                            5,
-                                            self.travel_time_CC[c_dict[perm[place_index]]][
-                                                c_dict[perm[place_index + 1]]],
-                                            'driving')
-                                    else:
-                                        perm_cost += self.cost_function(
-                                            self.distance_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
-                                            5,
-                                            self.travel_time_CC[c_dict[perm[place_index]]][
-                                                c_dict[perm[place_index + 1]]],
-                                            'driving')
+                                    perm_cost += self.cost_function(
+                                        self.distance_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                        5,
+                                        self.travel_time_CC[c_dict[perm[place_index]]][
+                                            c_dict[perm[place_index + 1]]],
+                                        'driving')
                         if perm_cost > best_perm_value:
                             best_perm_value = perm_cost
                             best_perm = perm
-                            best_time = perm_time
                     cost+= best_perm_value
-                    delivery_times.append(best_time)
                     i_combination.append(best_perm)
             if cost > total_cost:
                 total_cost = cost
                 final_combination = i_combination
-                best_delivery_times = delivery_times
         results_dict = {
             'combination' : final_combination,
-            'total_cost' : total_cost,
-            'Delivery times' : delivery_times
+            'total_cost' : total_cost
         }
         return results_dict
     def heuristic(self):
@@ -409,8 +381,9 @@ def main():
     print(finder.distance_RR)
     print('DISTANCE CLIENT - CLIENT')
     print(finder.distance_CC)
-    finder.draw_map()
     pp.pprint(finder.brute_force())
+    finder.draw_map(finder.brute_force()['combination'])
+
 
 if __name__ == '__main__':
     main()
