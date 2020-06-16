@@ -252,7 +252,7 @@ class UberFinder:
         best_delivery_times = []
         for comb in combinations:
             i_combination = []
-            delivery_times = {}
+            delivery_times = []
             cost = 0
             for orders,deliverer in zip(comb,range(self.deliverers_quantity)):
                 if len(orders) == 0:
