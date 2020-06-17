@@ -12,6 +12,7 @@ import gmplot
 
 pp = pprint.PrettyPrinter(indent=1)
 api_key = 'AIzaSyCwpVdTaCjH7QzsduH3Jb0XP548eUzSSDw'
+colors = ['blue','green','red','black']
 
 class UberFinder:
 
@@ -46,10 +47,11 @@ class UberFinder:
         #parameters for gmaps api search
         self.search_params = {
                                 'query': ['restaurants'],
-                                'location': (51.1132,17.0584),
+                                # 'location': (51.1132,17.0584),
                                 # 'location': (51.1117,17.0602),
-                                # 'location': (51.095, 17.0146),
-                                'radius': 1000
+                                'location': (51.098965, 17.017979),
+
+                                'radius': 3000
                              }
         self.gplot = gmplot.GoogleMapPlotter(self.search_params['location'][0],self.search_params['location'][1],15,apikey=api_key)
         #travel modes of deliverers
@@ -106,12 +108,12 @@ class UberFinder:
                                             restaurants_data['results'][i]['geometry']['location']['lng'])),
                                    'client': None
                                    }
-
+        #51.1 - 51.095    17.004 - 17.04
     def generate_deliverers(self):
         # adds deliverers to deliverers dictionary
         # now locations of deliverers are randomly generated 'around' pasaż grunwaldzki in (more or less) 1,5km radius
         for i in range(self.deliverers_quantity):
-            self.deliverers[i] = {'loc' : (random.uniform(51.1070, 51.1175),random.uniform(17.055, 17.065)),
+            self.deliverers[i] = {'loc' : (random.uniform(51.0901 , 51.1110),random.uniform(17.0041, 17.0601)),
                                   'travel_mode':'driving',
                                   'orders': []}
 
@@ -119,7 +121,7 @@ class UberFinder:
         #adds clients to dictionary
         # now locations of clients are randomly generated 'around' pasaż grunwaldzki in (more or less) 1,5km radius
         for i in range(self.restaurants_quantity):
-            self.clients[i] = {'loc': (random.uniform(51.1070, 51.1175), random.uniform(17.055, 17.065))}
+            self.clients[i] = {'loc': (random.uniform(51.0901 , 51.1110), random.uniform(17.0041, 17.0601))}
 
     def assign_clients_restaurants(self):
          for key,client_id in zip(self.restaurants.keys(),self.clients):
@@ -181,7 +183,10 @@ class UberFinder:
         else:
             transport_cost = 0
 
-        return distance/1000 * delivery_price - duration/3600 * deliverer_pay - distance/1000 * transport_cost # 3,6 * 5 - 0,069 * 12 - 3,6 * 0.83
+        return distance/1000 * delivery_price - duration/3600 * deliverer_pay - distance/1000 * transport_cost
+
+    def cost_function_income(self,distance ,delivery_price):
+        return distance/1000 * delivery_price
 
     def cost_function_DR(self, distance, delivery_price, duration, travel_mode, deliverer_pay=12, transport_cost=None):
         if travel_mode == 'driving':
@@ -193,7 +198,15 @@ class UberFinder:
 
         return - duration / 3600 * deliverer_pay - distance / 1000 * transport_cost  # 3,6 * 5 - 0,069 * 12 - 3,6 * 0.83
 
-    def draw_map(self,result):
+    def income(self,stations):
+        income = 0
+        for station in stations:
+            if station[0] == 'r':
+                income += self.cost_function_income(self.distance_RC[int(station[1:])][int(station[1:])],5)
+        return income
+
+        pass
+    def draw_marks(self):
         for deliverer in self.deliverers:
             self.gplot.marker(self.deliverers[deliverer]['loc'][0],
                               self.deliverers[deliverer]['loc'][1],
@@ -214,31 +227,75 @@ class UberFinder:
                               title = 'Client {}'.format(client))
             self.gplot.text(self.clients[client]['loc'][0],
                             self.clients[client]['loc'][1], 'Client {}'.format(client))
-        for orders,index in zip(result,range(len(result))):
-            if len(orders) == 0:
-                continue
-            elif len(orders) == 1:
-                self.gplot.directions(
-                    self.deliverers[index]['loc'],
-                    self.clients[orders[0]]['loc'],
-                    waypoints=[
-                        self.restaurants[orders[0]]['loc']
-                    ]
-                )
-            else:
-                loc_points = []
-                for station in orders:
-                    if station[0] == 'r':
-                        loc_points.append(self.restaurants[int(station[1:])]['loc'])
-                    else:
-                        loc_points.append(self.clients[int(station[1:])]['loc'])
-                self.gplot.directions\
-                    (
+        self.gplot.draw('map.html')
+
+    def draw_map(self,result,mode):
+        for deliverer in self.deliverers:
+            self.gplot.marker(self.deliverers[deliverer]['loc'][0],
+                              self.deliverers[deliverer]['loc'][1],
+                              color='green',
+                              title= 'Deliverer {}'.format(deliverer))
+            self.gplot.text(self.deliverers[deliverer]['loc'][0],
+                              self.deliverers[deliverer]['loc'][1], 'Deliverer {}'.format(deliverer))
+        for restaurant,client in zip(self.restaurants,self.clients):
+            self.gplot.marker(self.restaurants[restaurant]['loc'][0],
+                              self.restaurants[restaurant]['loc'][1],
+                              color='red',
+                              title= '{} - {}'.format(str(self.restaurants[restaurant]['name'].encode(encoding='ascii',errors = 'ignore'),"utf-8"),restaurant))
+            self.gplot.text(self.restaurants[restaurant]['loc'][0],
+                            self.restaurants[restaurant]['loc'][1], 'Restaurant {}'.format(restaurant))
+            self.gplot.marker(self.clients[client]['loc'][0],
+                              self.clients[client]['loc'][1],
+                              color = 'blue',
+                              title = 'Client {}'.format(client))
+            self.gplot.text(self.clients[client]['loc'][0],
+                            self.clients[client]['loc'][1], 'Client {}'.format(client))
+        if mode == 'route':
+            for orders,index in zip(result,range(len(result))):
+                if len(orders) == 0:
+                    continue
+                elif len(orders) == 1:
+                    self.gplot.directions(
                         self.deliverers[index]['loc'],
-                        loc_points[-1],
-                        waypoints=loc_points[:-1]
-                     )
-                pass
+                        self.clients[orders[0]]['loc'],
+                        waypoints=[
+                            self.restaurants[orders[0]]['loc']
+                        ]
+                    )
+                else:
+                    loc_points = []
+                    for station in orders:
+                        if station[0] == 'r':
+                            loc_points.append(self.restaurants[int(station[1:])]['loc'])
+                        else:
+                            loc_points.append(self.clients[int(station[1:])]['loc'])
+                    self.gplot.directions\
+                        (
+                            self.deliverers[index]['loc'],
+                            loc_points[-1],
+                            waypoints=loc_points[:-1]
+                         )
+                    pass
+        else:
+
+            for orders,index in zip(result,range(len(result))):
+                if len(orders) == 0:
+                    continue
+                elif len(orders) == 1:
+                    path = zip(*[self.deliverers[index]['loc'],self.restaurants[orders[0]]['loc'],self.clients[orders[0]]['loc']])
+                    self.gplot.plot(*path, edge_width=4, color= random.choice(colors))
+                else:
+                    path = []
+                    path.append(self.deliverers[index]['loc'])
+                    for station in orders:
+                        if station[0] == 'r':
+                            path.append(self.restaurants[int(station[1:])]['loc'])
+                        else:
+                            path.append(self.clients[int(station[1:])]['loc'])
+                    path = zip(*path)
+                    self.gplot.plot(*path, edge_width=4, color=random.choice(colors))
+
+
 
         self.gplot.draw('map.html')
 
@@ -270,8 +327,8 @@ class UberFinder:
                     i_combination.append(orders)
                     continue
                 elif len(orders) == 1:
-                    # cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]],5,
-                    #                            self.travel_time_DR[deliverer][orders[0]],'driving')
+                    cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]],5,
+                                               self.travel_time_DR[deliverer][orders[0]],'driving')
                     cost += self.cost_function(self.distance_RC[orders[0]][orders[0]], 5,
                                                self.travel_time_RC[orders[0]][orders[0]], 'driving')
                     i_combination.append(orders)
@@ -300,18 +357,19 @@ class UberFinder:
                         if possible_combination_flag == False:
                             break
                         else:
-                            # perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
-                            #                self.travel_time_DR[deliverer][orders[0]],'driving')
+                            perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
+                                           self.travel_time_DR[deliverer][orders[0]],'driving')
+                            perm_cost += self.income(perm)
                             for place_index in range(len(perm)-1):
                                 if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
-                                    perm_cost += self.cost_function(
+                                    perm_cost += self.cost_function_DR(
                                         self.distance_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
                                         5,
                                         self.travel_time_RC[r_dict[perm[place_index]]][
                                             c_dict[perm[place_index + 1]]],
                                         'driving')
                                 elif perm[place_index][0] == 'c' and perm[place_index+1][0] == 'r':
-                                    perm_cost += self.cost_function(self.distance_RC[r_dict[perm[place_index + 1]]][
+                                    perm_cost += self.cost_function_DR(self.distance_RC[r_dict[perm[place_index + 1]]][
                                                                         c_dict[perm[place_index]]],
                                                                     5,
                                                                     self.travel_time_RC[
@@ -319,12 +377,12 @@ class UberFinder:
                                                                         c_dict[perm[place_index]]],
                                                                     'driving')
                                 elif perm[place_index][0] == 'r' and perm[place_index+1][0] == 'r':
-                                    perm_cost += self.cost_function(self.distance_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
+                                    perm_cost += self.cost_function_DR(self.distance_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
                                                                     5,
                                                                     self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
                                                                     'driving')
                                 else:
-                                    perm_cost += self.cost_function(
+                                    perm_cost += self.cost_function_DR(
                                         self.distance_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
                                         5,
                                         self.travel_time_CC[c_dict[perm[place_index]]][
@@ -343,6 +401,108 @@ class UberFinder:
             'total_cost' : total_cost
         }
         return results_dict
+
+    # def brute_force(self):
+    #     combinations = []
+    #     deliv = [i for i in range(self.deliverers_quantity)]
+    #     rest = [i for i in range(self.restaurants_quantity)]
+    #     r_combinations = mi.powerset(rest)
+    #     comb_iter = iter.combinations(r_combinations, self.deliverers_quantity)
+    #     before_perm = []
+    #     for i in comb_iter:
+    #         temp = []
+    #         for j in i:
+    #             for z in j:
+    #                 temp.append(z)
+    #         if sorted(temp) == rest:
+    #             before_perm.append(i)
+    #     for i in before_perm:
+    #         k = iter.permutations(i)
+    #         for j in k:
+    #             combinations.append(j)
+    #     total_cost = 0
+    #     final_combination=[]
+    #     for comb in combinations:
+    #         i_combination = []
+    #         cost = 0
+    #         for orders,deliverer in zip(comb,range(self.deliverers_quantity)):
+    #             if len(orders) == 0:
+    #                 i_combination.append(orders)
+    #                 continue
+    #             elif len(orders) == 1:
+    #                 cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]],5,
+    #                                            self.travel_time_DR[deliverer][orders[0]],'driving')
+    #                 cost += self.cost_function(self.distance_RC[orders[0]][orders[0]], 5,
+    #                                            self.travel_time_RC[orders[0]][orders[0]], 'driving')
+    #                 i_combination.append(orders)
+    #             else:
+    #                 rc_dict ={}
+    #                 rc_list = []
+    #                 r_dict = {}
+    #                 for i in orders:
+    #                     r_dict[f'r{i}'] = i
+    #                     rc_list.append(f'r{i}')
+    #                 c_dict = {}
+    #                 for i in orders:
+    #                     c_dict[f'c{i}'] = i
+    #                     rc_list.append(f'c{i}')
+    #                 rc_dict = {**c_dict,**r_dict}
+    #
+    #                 best_perm_value = 0
+    #                 best_perm = None
+    #                 for perm in iter.permutations(rc_list):
+    #                     perm_cost = 0  #koszt dla danej permutacji
+    #                     possible_combination_flag = True
+    #                     for c,r in zip(c_dict.keys(),r_dict.keys()):
+    #                         if perm.index(c) < perm.index(r):
+    #                             possible_combination_flag = False
+    #
+    #                     if possible_combination_flag == False:
+    #                         break
+    #                     else:
+    #                         perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
+    #                                        self.travel_time_DR[deliverer][orders[0]],'driving')
+    #                         for place_index in range(len(perm)-1):
+    #                             if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
+    #                                 perm_cost += self.cost_function(
+    #                                     self.distance_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+    #                                     5,
+    #                                     self.travel_time_RC[r_dict[perm[place_index]]][
+    #                                         c_dict[perm[place_index + 1]]],
+    #                                     'driving')
+    #                             elif perm[place_index][0] == 'c' and perm[place_index+1][0] == 'r':
+    #                                 perm_cost += self.cost_function(self.distance_RC[r_dict[perm[place_index + 1]]][
+    #                                                                     c_dict[perm[place_index]]],
+    #                                                                 5,
+    #                                                                 self.travel_time_RC[
+    #                                                                     r_dict[perm[place_index + 1]]][
+    #                                                                     c_dict[perm[place_index]]],
+    #                                                                 'driving')
+    #                             elif perm[place_index][0] == 'r' and perm[place_index+1][0] == 'r':
+    #                                 perm_cost += self.cost_function(self.distance_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
+    #                                                                 5,
+    #                                                                 self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
+    #                                                                 'driving')
+    #                             else:
+    #                                 perm_cost += self.cost_function(
+    #                                     self.distance_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+    #                                     5,
+    #                                     self.travel_time_CC[c_dict[perm[place_index]]][
+    #                                         c_dict[perm[place_index + 1]]],
+    #                                     'driving')
+    #                     if perm_cost > best_perm_value:
+    #                         best_perm_value = perm_cost
+    #                         best_perm = perm
+    #                 cost+= best_perm_value
+    #                 i_combination.append(best_perm)
+    #         if cost > total_cost:
+    #             total_cost = cost
+    #             final_combination = i_combination
+    #     results_dict = {
+    #         'combination' : final_combination,
+    #         'total_cost' : total_cost
+    #     }
+    #     return results_dict
     def heuristic(self):
         pass
     #
@@ -357,7 +517,7 @@ class UberFinder:
 
 
 def main():
-    finder = UberFinder(api_key,4,3)
+    finder = UberFinder(api_key,6,3)
     print('RESTAURANTS')
     pp.pprint(finder.restaurants)
     print("DELIVERERRS")
@@ -388,8 +548,8 @@ def main():
     print('DISTANCE CLIENT - CLIENT')
     print(finder.distance_CC)
     pp.pprint(finder.brute_force())
-    finder.draw_map(finder.brute_force()['combination'])
-
+    finder.draw_map(finder.brute_force()['combination'],'plot')
+    # finder.draw_marks()
 
 if __name__ == '__main__':
     main()

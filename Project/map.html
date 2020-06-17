@@ -8,7 +8,7 @@
     function initialize() {
         var map = new google.maps.Map(document.getElementById("map_canvas"), {
             zoom: 15,
-            center: new google.maps.LatLng(51.113200, 17.058400)
+            center: new google.maps.LatLng(51.098965, 17.017979)
         });
 
         var marker_008000 = {
@@ -19,21 +19,21 @@
         new google.maps.Marker({
             title: "Deliverer 0",
             icon: marker_008000,
-            position: new google.maps.LatLng(51.109551, 17.056629),
+            position: new google.maps.LatLng(51.094315, 17.015804),
             map: map
         });
 
         new google.maps.Marker({
             title: "Deliverer 1",
             icon: marker_008000,
-            position: new google.maps.LatLng(51.116272, 17.055411),
+            position: new google.maps.LatLng(51.093370, 17.057413),
             map: map
         });
 
         new google.maps.Marker({
             title: "Deliverer 2",
             icon: marker_008000,
-            position: new google.maps.LatLng(51.114649, 17.059314),
+            position: new google.maps.LatLng(51.101408, 17.035481),
             map: map
         });
 
@@ -43,9 +43,9 @@
         };
 
         new google.maps.Marker({
-            title: "Ragu Pracownia Makaronu - 0",
+            title: "Spi - Microbrewery and Restaurant - 0",
             icon: marker_FF0000,
-            position: new google.maps.LatLng(51.117096, 17.049017),
+            position: new google.maps.LatLng(51.109994, 17.031173),
             map: map
         });
 
@@ -57,80 +57,114 @@
         new google.maps.Marker({
             title: "Client 0",
             icon: marker_0000FF,
-            position: new google.maps.LatLng(51.117047, 17.060147),
+            position: new google.maps.LatLng(51.099916, 17.007745),
             map: map
         });
 
         new google.maps.Marker({
-            title: "Restauracja Lwia Brama - 1",
+            title: "Vertigo Jazz Club & Restaurant - 1",
             icon: marker_FF0000,
-            position: new google.maps.LatLng(51.114186, 17.044098),
+            position: new google.maps.LatLng(51.108345, 17.035372),
             map: map
         });
 
         new google.maps.Marker({
             title: "Client 1",
             icon: marker_0000FF,
-            position: new google.maps.LatLng(51.109070, 17.056359),
+            position: new google.maps.LatLng(51.092718, 17.029819),
             map: map
         });
 
         new google.maps.Marker({
-            title: "Mexico Bar - 2",
+            title: "Sushi Midai - 2",
             icon: marker_FF0000,
-            position: new google.maps.LatLng(51.117207, 17.052895),
+            position: new google.maps.LatLng(51.119248, 17.028953),
             map: map
         });
 
         new google.maps.Marker({
             title: "Client 2",
             icon: marker_0000FF,
-            position: new google.maps.LatLng(51.111679, 17.062030),
+            position: new google.maps.LatLng(51.094259, 17.031847),
             map: map
         });
 
         new google.maps.Marker({
-            title: "Restauracja Grana Padano Wrocaw - 3",
+            title: "Studio Kulinarne - Browar Mieszczaski (Domar) - 3",
             icon: marker_FF0000,
-            position: new google.maps.LatLng(51.113873, 17.069947),
+            position: new google.maps.LatLng(51.110585, 17.013989),
             map: map
         });
 
         new google.maps.Marker({
             title: "Client 3",
             icon: marker_0000FF,
-            position: new google.maps.LatLng(51.113969, 17.055604),
+            position: new google.maps.LatLng(51.097192, 17.018101),
             map: map
         });
 
-        new google.maps.DirectionsService().route({
-            origin: new google.maps.LatLng(51.116272, 17.055411),
-            destination: new google.maps.LatLng(51.113969, 17.055604),
-            waypoints: [
-                {location: new google.maps.LatLng(51.117096, 17.049017), stopover: false},
-                {location: new google.maps.LatLng(51.117047, 17.060147), stopover: false},
-                {location: new google.maps.LatLng(51.113873, 17.069947), stopover: false},
-            ],
-            travelMode: "DRIVING"
-        }, function(response, status) {
-            if (status == google.maps.DirectionsStatus.OK) {
-                new google.maps.DirectionsRenderer({map: map}).setDirections(response);
-            }
+        new google.maps.Marker({
+            title: "Kame-Bar Kuchnia Japoska - 4",
+            icon: marker_FF0000,
+            position: new google.maps.LatLng(51.110630, 16.999650),
+            map: map
         });
 
-        new google.maps.DirectionsService().route({
-            origin: new google.maps.LatLng(51.114649, 17.059314),
-            destination: new google.maps.LatLng(51.111679, 17.062030),
-            waypoints: [
-                {location: new google.maps.LatLng(51.114186, 17.044098), stopover: false},
-                {location: new google.maps.LatLng(51.109070, 17.056359), stopover: false},
-                {location: new google.maps.LatLng(51.117207, 17.052895), stopover: false},
-            ],
-            travelMode: "DRIVING"
-        }, function(response, status) {
-            if (status == google.maps.DirectionsStatus.OK) {
-                new google.maps.DirectionsRenderer({map: map}).setDirections(response);
-            }
+        new google.maps.Marker({
+            title: "Client 4",
+            icon: marker_0000FF,
+            position: new google.maps.LatLng(51.109852, 17.031992),
+            map: map
+        });
+
+        new google.maps.Marker({
+            title: "Barbalon - 5",
+            icon: marker_FF0000,
+            position: new google.maps.LatLng(51.105188, 17.012433),
+            map: map
+        });
+
+        new google.maps.Marker({
+            title: "Client 5",
+            icon: marker_0000FF,
+            position: new google.maps.LatLng(51.105502, 17.016999),
+            map: map
+        });
+
+        new google.maps.Polyline({
+            clickable: false,
+            geodesic: true,
+            strokeColor: "#FF0000",
+            strokeOpacity: 1.000000,
+            strokeWeight: 4,
+            map: map,
+            path: [
+                new google.maps.LatLng(51.094315, 17.015804),
+                new google.maps.LatLng(51.105188, 17.012433),
+                new google.maps.LatLng(51.105502, 17.016999),
+            ]
+        });
+
+        new google.maps.Polyline({
+            clickable: false,
+            geodesic: true,
+            strokeColor: "#0000FF",
+            strokeOpacity: 1.000000,
+            strokeWeight: 4,
+            map: map,
+            path: [
+                new google.maps.LatLng(51.101408, 17.035481),
+                new google.maps.LatLng(51.109994, 17.031173),
+                new google.maps.LatLng(51.108345, 17.035372),
+                new google.maps.LatLng(51.119248, 17.028953),
+                new google.maps.LatLng(51.110585, 17.013989),
+                new google.maps.LatLng(51.110630, 16.999650),
+                new google.maps.LatLng(51.099916, 17.007745),
+                new google.maps.LatLng(51.097192, 17.018101),
+                new google.maps.LatLng(51.092718, 17.029819),
+                new google.maps.LatLng(51.094259, 17.031847),
+                new google.maps.LatLng(51.109852, 17.031992),
+            ]
         });
 
         new google.maps.Marker({
@@ -140,7 +174,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.109551, 17.056629),
+            position: new google.maps.LatLng(51.094315, 17.015804),
             map: map
         });
 
@@ -151,7 +185,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.116272, 17.055411),
+            position: new google.maps.LatLng(51.093370, 17.057413),
             map: map
         });
 
@@ -162,7 +196,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.114649, 17.059314),
+            position: new google.maps.LatLng(51.101408, 17.035481),
             map: map
         });
 
@@ -173,7 +207,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.117096, 17.049017),
+            position: new google.maps.LatLng(51.109994, 17.031173),
             map: map
         });
 
@@ -184,7 +218,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.117047, 17.060147),
+            position: new google.maps.LatLng(51.099916, 17.007745),
             map: map
         });
 
@@ -195,7 +229,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.114186, 17.044098),
+            position: new google.maps.LatLng(51.108345, 17.035372),
             map: map
         });
 
@@ -206,7 +240,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.109070, 17.056359),
+            position: new google.maps.LatLng(51.092718, 17.029819),
             map: map
         });
 
@@ -217,7 +251,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.117207, 17.052895),
+            position: new google.maps.LatLng(51.119248, 17.028953),
             map: map
         });
 
@@ -228,7 +262,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.111679, 17.062030),
+            position: new google.maps.LatLng(51.094259, 17.031847),
             map: map
         });
 
@@ -239,7 +273,7 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.113873, 17.069947),
+            position: new google.maps.LatLng(51.110585, 17.013989),
             map: map
         });
 
@@ -250,7 +284,51 @@
                 fontWeight: "bold"
             },
             icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
-            position: new google.maps.LatLng(51.113969, 17.055604),
+            position: new google.maps.LatLng(51.097192, 17.018101),
+            map: map
+        });
+
+        new google.maps.Marker({
+            label: {
+                text: "Restaurant 4",
+                color: "#000000",
+                fontWeight: "bold"
+            },
+            icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
+            position: new google.maps.LatLng(51.110630, 16.999650),
+            map: map
+        });
+
+        new google.maps.Marker({
+            label: {
+                text: "Client 4",
+                color: "#000000",
+                fontWeight: "bold"
+            },
+            icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
+            position: new google.maps.LatLng(51.109852, 17.031992),
+            map: map
+        });
+
+        new google.maps.Marker({
+            label: {
+                text: "Restaurant 5",
+                color: "#000000",
+                fontWeight: "bold"
+            },
+            icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
+            position: new google.maps.LatLng(51.105188, 17.012433),
+            map: map
+        });
+
+        new google.maps.Marker({
+            label: {
+                text: "Client 5",
+                color: "#000000",
+                fontWeight: "bold"
+            },
+            icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlMAQObYZgAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=",
+            position: new google.maps.LatLng(51.105502, 17.016999),
             map: map
         });
 
