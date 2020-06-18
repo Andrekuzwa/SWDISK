@@ -9,7 +9,6 @@ import more_itertools as mi
 import copy
 import gmplot
 
-
 pp = pprint.PrettyPrinter(indent=1)
 api_key = 'AIzaSyCwpVdTaCjH7QzsduH3Jb0XP548eUzSSDw'
 colors = ['blue','green','red','black']
@@ -51,7 +50,7 @@ class UberFinder:
                                 # 'location': (51.1117,17.0602),
                                 'location': (51.098965, 17.017979),
 
-                                'radius': 3000
+                                'radius': 1000
                              }
         self.gplot = gmplot.GoogleMapPlotter(self.search_params['location'][0],self.search_params['location'][1],15,apikey=api_key)
         #travel modes of deliverers
@@ -229,7 +228,7 @@ class UberFinder:
                             self.clients[client]['loc'][1], 'Client {}'.format(client))
         self.gplot.draw('map.html')
 
-    def draw_map(self,result,mode):
+    def draw_map(self,result,mode,algorythm):
         for deliverer in self.deliverers:
             self.gplot.marker(self.deliverers[deliverer]['loc'][0],
                               self.deliverers[deliverer]['loc'][1],
@@ -295,11 +294,13 @@ class UberFinder:
                     path = zip(*path)
                     self.gplot.plot(*path, edge_width=4, color=random.choice(colors))
 
-
-
-        self.gplot.draw('map.html')
+        if algorythm == "NN":
+            self.gplot.draw('mapNN.html')
+        else:
+            self.gplot.draw('mapBRUTE.html')
 
     def brute_force(self):
+        start = time.perf_counter()
         combinations = []
         deliv = [i for i in range(self.deliverers_quantity)]
         rest = [i for i in range(self.restaurants_quantity)]
@@ -396,128 +397,151 @@ class UberFinder:
             if cost > total_cost:
                 total_cost = cost
                 final_combination = i_combination
+
+        end = time.perf_counter()
+        exec_time = end - start
+
         results_dict = {
             'combination' : final_combination,
-            'total_cost' : total_cost
+            'total_cost' : total_cost,
+            'exec_time' : exec_time
         }
         return results_dict
 
-    # def brute_force(self):
-    #     combinations = []
-    #     deliv = [i for i in range(self.deliverers_quantity)]
-    #     rest = [i for i in range(self.restaurants_quantity)]
-    #     r_combinations = mi.powerset(rest)
-    #     comb_iter = iter.combinations(r_combinations, self.deliverers_quantity)
-    #     before_perm = []
-    #     for i in comb_iter:
-    #         temp = []
-    #         for j in i:
-    #             for z in j:
-    #                 temp.append(z)
-    #         if sorted(temp) == rest:
-    #             before_perm.append(i)
-    #     for i in before_perm:
-    #         k = iter.permutations(i)
-    #         for j in k:
-    #             combinations.append(j)
-    #     total_cost = 0
-    #     final_combination=[]
-    #     for comb in combinations:
-    #         i_combination = []
-    #         cost = 0
-    #         for orders,deliverer in zip(comb,range(self.deliverers_quantity)):
-    #             if len(orders) == 0:
-    #                 i_combination.append(orders)
-    #                 continue
-    #             elif len(orders) == 1:
-    #                 cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]],5,
-    #                                            self.travel_time_DR[deliverer][orders[0]],'driving')
-    #                 cost += self.cost_function(self.distance_RC[orders[0]][orders[0]], 5,
-    #                                            self.travel_time_RC[orders[0]][orders[0]], 'driving')
-    #                 i_combination.append(orders)
-    #             else:
-    #                 rc_dict ={}
-    #                 rc_list = []
-    #                 r_dict = {}
-    #                 for i in orders:
-    #                     r_dict[f'r{i}'] = i
-    #                     rc_list.append(f'r{i}')
-    #                 c_dict = {}
-    #                 for i in orders:
-    #                     c_dict[f'c{i}'] = i
-    #                     rc_list.append(f'c{i}')
-    #                 rc_dict = {**c_dict,**r_dict}
-    #
-    #                 best_perm_value = 0
-    #                 best_perm = None
-    #                 for perm in iter.permutations(rc_list):
-    #                     perm_cost = 0  #koszt dla danej permutacji
-    #                     possible_combination_flag = True
-    #                     for c,r in zip(c_dict.keys(),r_dict.keys()):
-    #                         if perm.index(c) < perm.index(r):
-    #                             possible_combination_flag = False
-    #
-    #                     if possible_combination_flag == False:
-    #                         break
-    #                     else:
-    #                         perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]],5,
-    #                                        self.travel_time_DR[deliverer][orders[0]],'driving')
-    #                         for place_index in range(len(perm)-1):
-    #                             if perm[place_index][0] == 'r' and perm[place_index+1][0] == 'c':
-    #                                 perm_cost += self.cost_function(
-    #                                     self.distance_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
-    #                                     5,
-    #                                     self.travel_time_RC[r_dict[perm[place_index]]][
-    #                                         c_dict[perm[place_index + 1]]],
-    #                                     'driving')
-    #                             elif perm[place_index][0] == 'c' and perm[place_index+1][0] == 'r':
-    #                                 perm_cost += self.cost_function(self.distance_RC[r_dict[perm[place_index + 1]]][
-    #                                                                     c_dict[perm[place_index]]],
-    #                                                                 5,
-    #                                                                 self.travel_time_RC[
-    #                                                                     r_dict[perm[place_index + 1]]][
-    #                                                                     c_dict[perm[place_index]]],
-    #                                                                 'driving')
-    #                             elif perm[place_index][0] == 'r' and perm[place_index+1][0] == 'r':
-    #                                 perm_cost += self.cost_function(self.distance_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
-    #                                                                 5,
-    #                                                                 self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
-    #                                                                 'driving')
-    #                             else:
-    #                                 perm_cost += self.cost_function(
-    #                                     self.distance_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
-    #                                     5,
-    #                                     self.travel_time_CC[c_dict[perm[place_index]]][
-    #                                         c_dict[perm[place_index + 1]]],
-    #                                     'driving')
-    #                     if perm_cost > best_perm_value:
-    #                         best_perm_value = perm_cost
-    #                         best_perm = perm
-    #                 cost+= best_perm_value
-    #                 i_combination.append(best_perm)
-    #         if cost > total_cost:
-    #             total_cost = cost
-    #             final_combination = i_combination
-    #     results_dict = {
-    #         'combination' : final_combination,
-    #         'total_cost' : total_cost
-    #     }
-    #     return results_dict
-    def heuristic(self):
-        pass
-    #
-    #
-    # def test(self):
-    #     x = iter.permutations([self.restaurants[0],self.restaurants[1],self.clients[0],self.clients[1]])
-    #     for i in x:
-    #         print(i)
 
+    def NN(self):
+        start = time.perf_counter()
+        min_list = []
+        min_index_list = []
+        for deli in self.deliverers:
+            min = 999999
+            min_index = ()
+            for restaurant in self.restaurants:
+                if restaurant in [i[1] for i in min_index_list]:
+                    continue
+                for deliverer in self.deliverers:
+                    if deliverer in [i[0] for i in min_index_list]:
+                        continue
+                    if self.distance_DR[deliverer][restaurant] < min:
+                        if self.distance_DR[deliverer][restaurant] not in min_list:
+                            min = self.distance_DR[deliverer][restaurant]
+                            min_index = (deliverer,restaurant)
+            if min not in min_list:
+                min_list.append(min)
+                min_index_list.append((min_index))
+        #przydziela po jednym najblizszym zamowieniu dla kazdego dostawcy
+        restaurants_left = [i for i in self.restaurants if i not in [j[1] for j in min_index_list]]
+
+        for i in range(len(restaurants_left)):
+            min = 999999
+            min_index = ()
+            for restaurant in restaurants_left:
+                for deliverer in self.deliverers:
+                    if self.distance_DR[deliverer][restaurant] < min:
+                        if self.distance_DR[deliverer][restaurant] not in min_list:
+                            min = self.distance_DR[deliverer][restaurant]
+                            min_index = (deliverer, restaurant)
+            if min not in min_list:
+                min_list.append(min)
+                min_index_list.append((min_index))
+        #reszte przydziela najblizszym bez ograniczen ilosci zamowien na dostawce
+
+        for deliverer,order in min_index_list:
+            self.deliverers[deliverer]['orders'].append(order)
+
+        comb = [self.deliverers[i]['orders'] for i in self.deliverers]
+
+        i_combination = []
+        cost = 0
+
+        for orders, deliverer in zip(comb, range(self.deliverers_quantity)):
+            if len(orders) == 0:
+                i_combination.append(orders)
+                continue
+            elif len(orders) == 1:
+                cost += self.cost_function_DR(self.distance_DR[deliverer][orders[0]], 5,
+                                              self.travel_time_DR[deliverer][orders[0]], 'driving')
+                cost += self.cost_function(self.distance_RC[orders[0]][orders[0]], 5,
+                                           self.travel_time_RC[orders[0]][orders[0]], 'driving')
+                i_combination.append(orders)
+            else:
+                rc_dict = {}
+                rc_list = []
+                r_dict = {}
+                for i in orders:
+                    r_dict[f'r{i}'] = i
+                    rc_list.append(f'r{i}')
+                c_dict = {}
+                for i in orders:
+                    c_dict[f'c{i}'] = i
+                    rc_list.append(f'c{i}')
+                rc_dict = {**c_dict, **r_dict}
+
+                best_perm_value = 0
+                best_perm = None
+                for perm in iter.permutations(rc_list):
+                    perm_cost = 0  # koszt dla danej permutacji
+                    possible_combination_flag = True
+                    for c, r in zip(c_dict.keys(), r_dict.keys()):
+                        if perm.index(c) < perm.index(r):
+                            possible_combination_flag = False
+
+                    if possible_combination_flag == False:
+                        break
+                    else:
+                        perm_cost += self.cost_function_DR(self.distance_DR[deliverer][rc_dict[perm[0]]], 5,
+                                                           self.travel_time_DR[deliverer][orders[0]], 'driving')
+                        perm_cost += self.income(perm)
+                        for place_index in range(len(perm) - 1):
+                            if perm[place_index][0] == 'r' and perm[place_index + 1][0] == 'c':
+                                perm_cost += self.cost_function_DR(
+                                    self.distance_RC[r_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                    5,
+                                    self.travel_time_RC[r_dict[perm[place_index]]][
+                                        c_dict[perm[place_index + 1]]],
+                                    'driving')
+                            elif perm[place_index][0] == 'c' and perm[place_index + 1][0] == 'r':
+                                perm_cost += self.cost_function_DR(self.distance_RC[r_dict[perm[place_index + 1]]][
+                                                                       c_dict[perm[place_index]]],
+                                                                   5,
+                                                                   self.travel_time_RC[
+                                                                       r_dict[perm[place_index + 1]]][
+                                                                       c_dict[perm[place_index]]],
+                                                                   'driving')
+                            elif perm[place_index][0] == 'r' and perm[place_index + 1][0] == 'r':
+                                perm_cost += self.cost_function_DR(
+                                    self.distance_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
+                                    5,
+                                    self.travel_time_RR[r_dict[perm[place_index]]][r_dict[perm[place_index + 1]]],
+                                    'driving')
+                            else:
+                                perm_cost += self.cost_function_DR(
+                                    self.distance_CC[c_dict[perm[place_index]]][c_dict[perm[place_index + 1]]],
+                                    5,
+                                    self.travel_time_CC[c_dict[perm[place_index]]][
+                                        c_dict[perm[place_index + 1]]],
+                                    'driving')
+                    if perm_cost > best_perm_value:
+                        best_perm_value = perm_cost
+                        best_perm = perm
+                cost += best_perm_value
+                i_combination.append(best_perm)
+
+        end = time.perf_counter()
+        exec_time = end - start
+        results_dict = {
+            'combination': i_combination,
+            'total_cost': cost,
+            'exec_time': exec_time
+        }
+
+        return results_dict
 
 
 
 
 def main():
-    finder = UberFinder(api_key,6,3)
+    finder = UberFinder(api_key,7,5)
     print('RESTAURANTS')
     pp.pprint(finder.restaurants)
     print("DELIVERERRS")
@@ -537,8 +561,6 @@ def main():
     print(finder.travel_time_CC)
     print('---------------------')
     print('DISTANCE MATRIXES')
-    print('DISTANCE MATRIX DELIVERER - RESTAURANT')
-    print(finder.distance_DR)
     print('DISTANCE DELIVERER - CLIENT')
     print(finder.distance_DC)
     print('DISTANCE RESTAURANT - CLIENT')
@@ -547,9 +569,14 @@ def main():
     print(finder.distance_RR)
     print('DISTANCE CLIENT - CLIENT')
     print(finder.distance_CC)
+    # print('DISTANCE MATRIX DELIVERER - RESTAURANT')
+    # print(finder.distance_DR)
     pp.pprint(finder.brute_force())
-    finder.draw_map(finder.brute_force()['combination'],'plot')
-    # finder.draw_marks()
+    pp.pprint(finder.NN())
+    # finder.draw_map(finder.brute_force()['combination'],'plot',"BRUTE")
+    # finder.draw_map(finder.NN()['combination'],'plot','NN')
+    # pp.pprint(finder.deliverers)
+    # # finder.draw_marks()
 
 if __name__ == '__main__':
     main()
