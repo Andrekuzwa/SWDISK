@@ -113,7 +113,7 @@ class UberFinder:
         # adds deliverers to deliverers dictionary
         # now locations of deliverers are randomly generated 'around' pasaż grunwaldzki in (more or less) 1,5km radius
         for i in range(self.deliverers_quantity):
-            self.deliverers[i] = {'loc' : (random.uniform(51.0901 , 51.1110),random.uniform(17.0040, 17.0601)),
+            self.deliverers[i] = {'loc' : (random.uniform(51.0801 , 51.1110),random.uniform(17.00401, 17.0601)),
                                   'travel_mode':'driving',
                                   'orders': []}
 
@@ -121,7 +121,7 @@ class UberFinder:
         #adds clients to dictionary
         # now locations of clients are randomly generated 'around' pasaż grunwaldzki in (more or less) 1,5km radius
         for i in range(self.restaurants_quantity):
-            self.clients[i] = {'loc': (random.uniform(51.0901 , 51.1110), random.uniform(17.0040, 17.0601))}
+            self.clients[i] = {'loc': (random.uniform(51.0801 , 51.1110), random.uniform(17.00401, 17.0601))}
 
     def assign_clients_restaurants(self):
          for key,client_id in zip(self.restaurants.keys(),self.clients):
@@ -301,7 +301,7 @@ class UberFinder:
             self.gplot.draw('mapBRUTE.html')
 
     def brute_force(self):
-        # start = time.perf_counter()
+        start = time.perf_counter()
         combinations = []
         deliv = [i for i in range(self.deliverers_quantity)]
         rest = [i for i in range(self.restaurants_quantity)]
@@ -399,7 +399,7 @@ class UberFinder:
                 total_cost = cost
                 final_combination = i_combination
 
-        # end = time.perf_counter()
+        end = time.perf_counter()
         exec_time = end - start
 
         results_dict = {
@@ -573,10 +573,10 @@ def main():
     print(finder.distance_CC)
     # print('DISTANCE MATRIX DELIVERER - RESTAURANT')
     # print(finder.distance_DR)
-    # pp.pprint(finder.brute_force())
-    pp.pprint(finder.NN())
-    # finder.draw_map(finder.brute_force()['combination'],'plot',"BRUTE")
-    finder.draw_map(finder.NN()['combination'],'plot','NN')
+    pp.pprint(finder.brute_force())
+    finder.draw_map(finder.brute_force()['combination'],'plot',"BRUTE")
+    # pp.pprint(finder.NN())
+    # finder.draw_map(finder.NN()['combination'],'plot','NN')
     # pp.pprint(finder.deliverers)
     # # finder.draw_marks()
 
