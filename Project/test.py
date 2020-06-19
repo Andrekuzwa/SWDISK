@@ -3,35 +3,39 @@ import googlemaps
 from datetime import datetime
 import pprint
 import time
-
+import gmplot
 gmaps = googlemaps.Client(key='AIzaSyCwpVdTaCjH7QzsduH3Jb0XP548eUzSSDw')
 api_key = 'AIzaSyCwpVdTaCjH7QzsduH3Jb0XP548eUzSSDw'
+gmap = gmplot.GoogleMapPlotter(51.1117,17.0602,15)
+gmap.apikey = api_key
+gmap.draw('map.html')
+print(gmap.draw('map.html'))
 # Geocoding an address
-geocode_result = gmaps.geocode('1600 Amphitheatre Parkway, Mountain View, CA')
-
-# Look up an address with reverse geocoding
-reverse_geocode_result = gmaps.reverse_geocode((40.714224, -73.961452))
-
-# Request directions via public transit
-now = datetime.now()
-directions_result = gmaps.directions("Sydney Town Hall",
-                                     "Parramatta, NSW",
-                                     mode="walking",
-                                     departure_time=now)
-#godz 16 - 1601564400
-#godzina 1:00 - 1601510400
-distance = gmaps.distance_matrix('Wrocław Vertigo Jazz Club & Restaurant',(51.1117,17.0602),'driving',departure_time=1601510400,traffic_model = 'pessimistic')
-
-
-
-# print(geocode_result)
-# print(reverse_geocode_result)
-# print(directions_result)
-pp = pprint.PrettyPrinter(indent=1)
-pp.pprint(distance)
-print(distance['rows'][0]['elements'][0]['distance']['value'],distance['rows'][0]['elements'][0]['distance']['text'])
-print(distance['rows'][0]['elements'][0]['duration']['value'],distance['rows'][0]['elements'][0]['duration']['text'])
-print(distance['rows'][0]['elements'][0]['duration_in_traffic']['value'],distance['rows'][0]['elements'][0]['duration_in_traffic']['text'])
+# geocode_result = gmaps.geocode('1600 Amphitheatre Parkway, Mountain View, CA')
+#
+# # Look up an address with reverse geocoding
+# reverse_geocode_result = gmaps.reverse_geocode((40.714224, -73.961452))
+#
+# # Request directions via public transit
+# now = datetime.now()
+# directions_result = gmaps.directions("Sydney Town Hall",
+#                                      "Parramatta, NSW",
+#                                      mode="walking",
+#                                      departure_time=now)
+# #godz 16 - 1601564400
+# #godzina 1:00 - 1601510400
+# distance = gmaps.distance_matrix('Wrocław Vertigo Jazz Club & Restaurant',(51.1117,17.0602),'driving',departure_time=1601510400,traffic_model = 'pessimistic')
+#
+#
+#
+# # print(geocode_result)
+# # print(reverse_geocode_result)
+# # print(directions_result)
+# pp = pprint.PrettyPrinter(indent=1)
+# pp.pprint(distance)
+# print(distance['rows'][0]['elements'][0]['distance']['value'],distance['rows'][0]['elements'][0]['distance']['text'])
+# print(distance['rows'][0]['elements'][0]['duration']['value'],distance['rows'][0]['elements'][0]['duration']['text'])
+# print(distance['rows'][0]['elements'][0]['duration_in_traffic']['value'],distance['rows'][0]['elements'][0]['duration_in_traffic']['text'])
 # print(distance)
 #
 #

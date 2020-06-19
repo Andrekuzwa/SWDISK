@@ -13,14 +13,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SWDISK.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="179">
-              <caret line="304" column="8" selection-start-line="304" selection-start-column="8" selection-end-line="304" selection-end-column="8" />
+            <state relative-caret-position="61">
+              <caret line="538" column="34" lean-forward="true" selection-start-line="538" selection-start-column="34" selection-end-line="538" selection-end-column="34" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/map_brute.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-459">
+              <caret line="15" column="54" lean-forward="true" selection-start-line="15" selection-start-column="54" selection-end-line="15" selection-end-column="54" />
             </state>
           </provider>
         </entry>
@@ -140,7 +149,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -174,6 +182,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -333,12 +342,12 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19652265" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19652265" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32827735" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.25568798" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.36619717" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3261105" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -391,63 +400,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>268</line>
-          <option name="timeStamp" value="24" />
+          <line>255</line>
+          <option name="timeStamp" value="48" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>270</line>
-          <option name="timeStamp" value="25" />
+          <line>257</line>
+          <option name="timeStamp" value="49" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>274</line>
-          <option name="timeStamp" value="26" />
+          <line>555</line>
+          <option name="timeStamp" value="54" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>273</line>
-          <option name="timeStamp" value="27" />
+          <line>554</line>
+          <option name="timeStamp" value="55" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>351</line>
-          <option name="timeStamp" value="33" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>305</line>
-          <option name="timeStamp" value="38" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>304</line>
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>324</line>
-          <option name="timeStamp" value="40" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>453</line>
-          <option name="timeStamp" value="41" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>455</line>
-          <option name="timeStamp" value="42" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>433</line>
-          <option name="timeStamp" value="45" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SWDISK.py</url>
-          <line>435</line>
-          <option name="timeStamp" value="46" />
+          <line>553</line>
+          <option name="timeStamp" value="56" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -496,6 +470,16 @@
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
+        <expression-string>self.gplot.plot(*path, edge_width=4, color=random.choice(colors))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>*path</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>[j[1] for j in min_index_list]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
@@ -530,16 +514,6 @@
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>,self.restaurants[0]['loc'][1]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>self.restaurants[0]['loc'][0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
@@ -561,10 +535,11 @@
       </provider>
     </entry>
     <entry file="file://D:/Program Files (x86)/Microsoft Visual Studio/Shared/Python36_64/Lib/site-packages/gmplot/gmplot.py" />
+    <entry file="file://$PROJECT_DIR$/map.html" />
     <entry file="file://$PROJECT_DIR$/SWDISK.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="179">
-          <caret line="304" column="8" selection-start-line="304" selection-start-column="8" selection-end-line="304" selection-end-column="8" />
+        <state relative-caret-position="61">
+          <caret line="538" column="34" lean-forward="true" selection-start-line="538" selection-start-column="34" selection-end-line="538" selection-end-column="34" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
           </folding>
@@ -592,13 +567,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5440">
           <caret line="334" column="71" selection-start-line="334" selection-start-column="66" selection-end-line="334" selection-end-column="71" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/map.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="32" selection-start-line="20" selection-start-column="32" selection-end-line="20" selection-end-column="32" />
         </state>
       </provider>
     </entry>
@@ -633,6 +601,13 @@
           <folding>
             <element signature="e#0#24#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/map_brute.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-459">
+          <caret line="15" column="54" lean-forward="true" selection-start-line="15" selection-start-column="54" selection-end-line="15" selection-end-column="54" />
         </state>
       </provider>
     </entry>

@@ -205,29 +205,6 @@ class UberFinder:
                 income += self.cost_function_income(self.distance_RC[int(station[1:])][int(station[1:])],5)
         return income
 
-        pass
-    def draw_marks(self):
-        for deliverer in self.deliverers:
-            self.gplot.marker(self.deliverers[deliverer]['loc'][0],
-                              self.deliverers[deliverer]['loc'][1],
-                              color='green',
-                              title= 'Deliverer {}'.format(deliverer))
-            self.gplot.text(self.deliverers[deliverer]['loc'][0],
-                              self.deliverers[deliverer]['loc'][1], 'Deliverer {}'.format(deliverer))
-        for restaurant,client in zip(self.restaurants,self.clients):
-            self.gplot.marker(self.restaurants[restaurant]['loc'][0],
-                              self.restaurants[restaurant]['loc'][1],
-                              color='red',
-                              title= '{} - {}'.format(str(self.restaurants[restaurant]['name'].encode(encoding='ascii',errors = 'ignore'),"utf-8"),restaurant))
-            self.gplot.text(self.restaurants[restaurant]['loc'][0],
-                            self.restaurants[restaurant]['loc'][1], 'Restaurant {}'.format(restaurant))
-            self.gplot.marker(self.clients[client]['loc'][0],
-                              self.clients[client]['loc'][1],
-                              color = 'blue',
-                              title = 'Client {}'.format(client))
-            self.gplot.text(self.clients[client]['loc'][0],
-                            self.clients[client]['loc'][1], 'Client {}'.format(client))
-        self.gplot.draw('map.html')
 
     def draw_map(self,result,mode,algorythm):
         for deliverer in self.deliverers:
@@ -296,14 +273,13 @@ class UberFinder:
                     self.gplot.plot(*path, edge_width=4, color=random.choice(colors))
 
         if algorythm == "NN":
-            self.gplot.draw('mapNN.html')
+            self.gplot.draw('mapN_N.html')
         else:
-            self.gplot.draw('mapBRUTE.html')
+            self.gplot.draw('map_brute.html')
 
     def brute_force(self):
         start = time.perf_counter()
         combinations = []
-        deliv = [i for i in range(self.deliverers_quantity)]
         rest = [i for i in range(self.restaurants_quantity)]
         r_combinations = mi.powerset(rest)
         comb_iter = iter.combinations(r_combinations, self.deliverers_quantity)
@@ -335,7 +311,6 @@ class UberFinder:
                                                self.travel_time_RC[orders[0]][orders[0]], 'driving')
                     i_combination.append(orders)
                 else:
-                    rc_dict ={}
                     rc_list = []
                     r_dict = {}
                     for i in orders:
@@ -543,7 +518,7 @@ class UberFinder:
 
 
 def main():
-    finder = UberFinder(api_key,7,5)
+    finder = UberFinder(api_key,4,3)
     print('RESTAURANTS')
     pp.pprint(finder.restaurants)
     print("DELIVERERRS")
@@ -573,10 +548,12 @@ def main():
     print(finder.distance_CC)
     # print('DISTANCE MATRIX DELIVERER - RESTAURANT')
     # print(finder.distance_DR)
+    # brute = finder.brute_force()
     pp.pprint(finder.brute_force())
-    finder.draw_map(finder.brute_force()['combination'],'plot',"BRUTE")
-    # pp.pprint(finder.NN())
-    # finder.draw_map(finder.NN()['combination'],'plot','NN')
+    finder.draw_map(finder.brute_force()['combination'], 'plot', "BRUTE")
+    # NN = finder.NN()
+    # pp.pprint(NN)
+    # finder.draw_map(NN['combination'],'plot','NN')
     # pp.pprint(finder.deliverers)
     # # finder.draw_marks()
 
