@@ -47,8 +47,9 @@ class UberFinder:
         self.search_params = {
                                 'query': ['restaurants'],
                                 # 'location': (51.1132,17.0584),
-                                # 'location': (51.1117,17.0602),
-                                'location': (51.098965, 17.017979),
+                                'location': (51.078342, 16.999933),
+                                # 'location': (51.098965, 17.017979),
+
 
                                 'radius': 1000
                              }
@@ -300,7 +301,7 @@ class UberFinder:
             self.gplot.draw('mapBRUTE.html')
 
     def brute_force(self):
-        start = time.perf_counter()
+        # start = time.perf_counter()
         combinations = []
         deliv = [i for i in range(self.deliverers_quantity)]
         rest = [i for i in range(self.restaurants_quantity)]
@@ -398,7 +399,7 @@ class UberFinder:
                 total_cost = cost
                 final_combination = i_combination
 
-        end = time.perf_counter()
+        # end = time.perf_counter()
         exec_time = end - start
 
         results_dict = {
@@ -441,9 +442,10 @@ class UberFinder:
                         if self.distance_DR[deliverer][restaurant] not in min_list:
                             min = self.distance_DR[deliverer][restaurant]
                             min_index = (deliverer, restaurant)
-            if min not in min_list:
+            if min_index[1] not in [i[1] for i in min_index_list]:
                 min_list.append(min)
                 min_index_list.append((min_index))
+                restaurants_left.remove(min_index[1])
         #reszte przydziela najblizszym bez ograniczen ilosci zamowien na dostawce
 
         for deliverer,order in min_index_list:
@@ -541,7 +543,7 @@ class UberFinder:
 
 
 def main():
-    finder = UberFinder(api_key,7,5)
+    finder = UberFinder(api_key,6,4)
     print('RESTAURANTS')
     pp.pprint(finder.restaurants)
     print("DELIVERERRS")
@@ -571,10 +573,10 @@ def main():
     print(finder.distance_CC)
     # print('DISTANCE MATRIX DELIVERER - RESTAURANT')
     # print(finder.distance_DR)
-    pp.pprint(finder.brute_force())
+    # pp.pprint(finder.brute_force())
     pp.pprint(finder.NN())
     # finder.draw_map(finder.brute_force()['combination'],'plot',"BRUTE")
-    # finder.draw_map(finder.NN()['combination'],'plot','NN')
+    finder.draw_map(finder.NN()['combination'],'plot','NN')
     # pp.pprint(finder.deliverers)
     # # finder.draw_marks()
 
