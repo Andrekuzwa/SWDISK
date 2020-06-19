@@ -47,11 +47,11 @@ class UberFinder:
         self.search_params = {
                                 'query': ['restaurants'],
                                 # 'location': (51.1132,17.0584),
-                                'location': (51.078342, 16.999933),
+                                'location': (51.080131, 17.004544),
                                 # 'location': (51.098965, 17.017979),
 
 
-                                'radius': 1000
+                                'radius': 2000
                              }
         self.gplot = gmplot.GoogleMapPlotter(self.search_params['location'][0],self.search_params['location'][1],15,apikey=api_key)
         #travel modes of deliverers
@@ -113,7 +113,7 @@ class UberFinder:
         # adds deliverers to deliverers dictionary
         # now locations of deliverers are randomly generated 'around' pasaż grunwaldzki in (more or less) 1,5km radius
         for i in range(self.deliverers_quantity):
-            self.deliverers[i] = {'loc' : (random.uniform(51.0901 , 51.1110),random.uniform(17.0041, 17.0601)),
+            self.deliverers[i] = {'loc' : (random.uniform(51.0901 , 51.1110),random.uniform(17.0040, 17.0601)),
                                   'travel_mode':'driving',
                                   'orders': []}
 
@@ -121,7 +121,7 @@ class UberFinder:
         #adds clients to dictionary
         # now locations of clients are randomly generated 'around' pasaż grunwaldzki in (more or less) 1,5km radius
         for i in range(self.restaurants_quantity):
-            self.clients[i] = {'loc': (random.uniform(51.0901 , 51.1110), random.uniform(17.0041, 17.0601))}
+            self.clients[i] = {'loc': (random.uniform(51.0901 , 51.1110), random.uniform(17.0040, 17.0601))}
 
     def assign_clients_restaurants(self):
          for key,client_id in zip(self.restaurants.keys(),self.clients):
@@ -543,7 +543,7 @@ class UberFinder:
 
 
 def main():
-    finder = UberFinder(api_key,6,4)
+    finder = UberFinder(api_key,7,5)
     print('RESTAURANTS')
     pp.pprint(finder.restaurants)
     print("DELIVERERRS")
