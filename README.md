@@ -1,2 +1,2 @@
-# SWDISK
-Deliverer problem research environment using Google Maps API
+# Deliverer problem research environment using Google Maps API
+
