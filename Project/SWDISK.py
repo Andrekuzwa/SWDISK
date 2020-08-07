@@ -10,7 +10,7 @@ import copy
 import gmplot
 
 pp = pprint.PrettyPrinter(indent=1)
-api_key = 'AIzaSyCwpVdTaCjH7QzsduH3Jb0XP548eUzSSDw'
+api_key = '******************************************'
 colors = ['blue','green','red','black']
 
 class UberFinder:
